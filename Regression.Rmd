@@ -1,0 +1,102 @@
+---
+title: "Regressionn (Final Project)"
+author: "Long Nguyen"
+date: '2019-03-21'
+output: 
+  html_document: default
+---
+
+```{r clean}
+rm(list=ls())
+```
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+	echo = TRUE,
+	message = FALSE,
+	warning = FALSE
+)
+```
+
+
+```{r answer 1}
+regression.dat <- read.csv(file='stat123_regression.csv')
+summary(regression.dat)
+
+```
+
+```{r answer 2}
+boxplot(regression.dat$ADL)
+
+IQR(regression.dat$ADL)
+#median < mean
+#median is 56.00
+#mean = 57.85
+#postive skew
+summary(regression.dat$ADL)
+#standard deviation
+sd(regression.dat$ADL)
+#pretty high standard deviation -->more spread from mean
+#NO outliner
+```
+
+```{r answer 3}
+#scatterplot ADL
+plot(regression.dat$ADL,regression.dat$KBI, main="Scatterplot of X1 and Y",xlab="X1",ylab="Y")
+#--> not suitable to use
+
+#scatterplot MEM
+plot(regression.dat$MEM,regression.dat$KBI,main="Scatterplot of X2 and Y",xlab="X2",ylab="Y")
+#--> Since Y is normally distrubited, we can use linear model here
+
+#scatterplot 
+plot(regression.dat$COG,regression.dat$KBI,main="Scatterplot of X3 and Y",xlab="X3",ylab="Y")
+#-->not suitable to use
+```
+
+```{r answer 4 and 5}
+
+rsq<-function(x,y){
+  cor(x,y)^2
+}
+#Y and X1
+#positive correlation
+rsq(regression.dat$ADL,regression.dat$KBI)
+unix1<-lm(regression.dat$ADL~regression.dat$KBI,data=regression.dat)
+summary(unix1)
+#-->low rsq (nonlinear)
+
+#Y and X2
+
+rsq(regression.dat$MEM,regression.dat$KBI) #more fitted to regression line (conditonally linear)
+unix2<-lm(regression.dat$MEM~regression.dat$KBI,data=regression.dat)
+summary(unix2)
+#Y and X3
+rsq(regression.dat$COG,regression.dat$KBI)
+unix3<-lm(regression.dat$COG~regression.dat$KBI,data=regression.dat)
+summary(unix3)
+#-
+#--> rsq is low (non-linear)
+
+cor(regression.dat$ADL,regression.dat$MEM)
+#high correlation between ADL and MEM (likely strong relationship)
+cor(regression.dat$ADL,regression.dat$COG)
+#high negative correlation value --> ADL and COG are opposite
+cor(regression.dat$COG,regression.dat$MEM)
+#moderate negative correlation value --> MEM and COG are adequtely opposite
+
+
+#rsq of multivar is higher than rsq of each of the X 
+rsq(regression.dat$KBI, regression.dat$ADL+regression.dat$MEM+regression.dat$COG)
+
+multifit<-lm(regression.dat$KBI ~ regression.dat$ADL+regression.dat$MEM+regression.dat$COG,data=regression.dat)
+summary(multifit)
+multifit.res<-resid(multifit)
+hist(multifit.res) #--> residual mostly distributed to 0 --> fitted
+ 
+#estimate regression parameters are the value that describe the the effect of the independent variables (X1,2,3) are having on Y
+
+#standard error provides the measures of distance the point falls from regression line of (X1,2,3 to Y)
+
+#t value measure the size of difference relative to the variation
+```

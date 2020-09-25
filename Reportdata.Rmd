@@ -1,0 +1,201 @@
+---
+title: "Reportdata (Final Project Stat 123)"
+author: "Long Nguyen"
+date: '2019-03-21'
+output: 
+  html_document: default
+---
+
+```{r clean}
+rm(list=ls())
+```
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+	echo = TRUE
+)
+```
+
+```{r }
+library(readxl)
+library(tidyverse)
+library(lubridate)
+
+X919report_data <- read_excel("919report_data.xlsx",col_types=c("numeric","text","date",rep("text",39)))
+
+fix.time <- function(x){
+  return(str_split(x," ",simplify=T)[1,2])
+}
+
+clean.my.data = function(data) {
+  df = data %>%
+    select(-contains("Attended")) %>%
+    select(-c(`Gender`, Height, `Weight (lbs)`, `Hair Colour`, `Call initiated to: Police (911)`, 
+              `Call initiated to: Fire (911)`,`Vehicle ID`)) %>%
+
+    mutate(`Naloxone` = as.character(`Naloxone`)) %>%
+    mutate(`Naloxone` = ifelse(is.na(`Naloxone`), 
+                                "", `Naloxone`)) %>%
+    mutate(`Overdose` = as.numeric(`Overdose`)) %>%
+    mutate(`Overdose` = if_else(is.na(`Overdose`), 
+                                0, `Overdose`)) %>%
+    mutate(`Call initiated to: Ambulance  (911)` = as.numeric(`Call initiated to: Ambulance  (911)`)) %>%
+    mutate(`Call initiated to: Ambulance  (911)` = ifelse(is.na(`Call initiated to: Ambulance  (911)`), 
+                                                           0, `Call initiated to: Ambulance  (911)`)) %>%
+
+    mutate(`Event Location: Drop In` = as.numeric(`Event Location: Drop In`)) %>%
+    mutate(`Event Location: Drop In` = ifelse(is.na(`Event Location: Drop In`), 
+                                               0, `Event Location: Drop In`)) %>%
+    mutate(`Event Location: Lobby` = as.numeric(`Event Location: Lobby`)) %>%
+    mutate(`Event Location: Lobby` = ifelse(is.na(`Event Location: Lobby`), 
+                                             0, `Event Location: Lobby`)) %>%
+    mutate(`Event Location: Courtyard` = as.numeric(`Event Location: Courtyard`)) %>%
+    mutate(`Event Location: Courtyard` = ifelse(is.na(`Event Location: Courtyard`), 
+                                                 0, `Event Location: Courtyard`)) %>%
+    mutate(`Event Location: Kitchen` = as.numeric(`Event Location: Kitchen`)) %>%
+    mutate(`Event Location: Kitchen` = ifelse(is.na(`Event Location: Kitchen`), 
+                                               0, `Event Location: Kitchen`)) %>%
+    mutate(`Event Location: Dinning Area` = as.numeric(`Event Location: Dinning Area`)) %>%
+    mutate(`Event Location: Dinning Area` = ifelse(is.na(`Event Location: Dinning Area`), 
+                                                    0, `Event Location: Dinning Area`)) %>%
+    mutate(`Event Location: Chapel` = as.numeric(`Event Location: Chapel`)) %>%
+    mutate(`Event Location: Chapel` = ifelse(is.na(`Event Location: Chapel`), 
+                                              0, `Event Location: Chapel`)) %>%
+    mutate(`Event Location: Hygiene` = as.numeric(`Event Location: Hygiene`)) %>%
+    mutate(`Event Location: Hygiene` = ifelse(is.na(`Event Location: Hygiene`), 
+                                               0, `Event Location: Hygiene`)) %>%
+    mutate(`Event Location: Games room` = as.numeric(`Event Location: Games room`)) %>%
+    mutate(`Event Location: Games room` = ifelse(is.na(`Event Location: Games room`), 
+                                                  0, `Event Location: Games room`)) %>%
+    mutate(`Event Location: Shipping&Reveiving Area` = as.numeric(`Event Location: Shipping&Reveiving Area`)) %>%
+    mutate(`Event Location: Shipping&Reveiving Area` = ifelse(is.na(`Event Location: Shipping&Reveiving Area`), 
+                                                               0, `Event Location: Shipping&Reveiving Area`)) %>%
+    mutate(`Event Location: Common Housing Area` = as.numeric(`Event Location: Common Housing Area`)) %>%
+    mutate(`Event Location: Common Housing Area` = ifelse(is.na(`Event Location: Common Housing Area`), 
+                                                           0, `Event Location: Common Housing Area`)) %>%
+    mutate(`Event Location: In Room` = as.numeric(`Event Location: In Room`)) %>%
+    mutate(`Event Location: In Room` = ifelse(is.na(`Event Location: In Room`), 
+                                               0, `Event Location: In Room`)) %>%
+    mutate(`Event Location: Perimeter` = as.numeric(`Event Location: Perimeter`)) %>%
+    mutate(`Event Location: Perimeter` = ifelse(is.na(`Event Location: Perimeter`), 
+                                                 0, `Event Location: Perimeter`)) %>%
+    mutate(`Event Location:Snack Bar` = as.numeric(`Event Location:Snack Bar`)) %>%
+    mutate(`Event Location:Snack Bar` = ifelse(is.na(`Event Location:Snack Bar`), 
+                                                0, `Event Location:Snack Bar`)) %>%
+    mutate(`Other: (Enter)` = ifelse(is.na(`Other: (Enter)`) | X919report_data$`Other: (Enter)`=="0", "0", "1")) %>%
+    mutate(`Other: (Enter)` = as.numeric(`Other: (Enter)`)) %>%                                            
+
+    mutate(`Incident Teyp(S):  Medical` = as.numeric(`Incident Teyp(S):  Medical`)) %>%
+    mutate(`Incident Teyp(S):  Medical` = ifelse(is.na(`Incident Teyp(S):  Medical`), 
+                                0, `Incident Teyp(S):  Medical`)) %>%
+    mutate(`Incident Teyp(S):  Injury` = as.numeric(`Incident Teyp(S):  Injury`)) %>%
+    mutate(`Incident Teyp(S):  Injury` = ifelse(is.na(`Incident Teyp(S):  Injury`), 
+                                0, `Incident Teyp(S):  Injury`)) %>%
+    mutate(`Incident Teyp(S):  Drug/Alcohol` = as.numeric(`Incident Teyp(S):  Drug/Alcohol`)) %>%
+    mutate(`Incident Teyp(S):  Injury` = ifelse(is.na(`Incident Teyp(S):  Drug/Alcohol`), 
+                                0, `Incident Teyp(S):  Drug/Alcohol`)) %>%
+    mutate(`Incident Teyp(S): Violence` = as.numeric(`Incident Teyp(S): Violence`)) %>%
+    mutate(`Incident Teyp(S): Violence` = ifelse(is.na(`Incident Teyp(S): Violence`), 
+                                0, `Incident Teyp(S): Violence`)) %>%        
+    mutate(`Incident Teyp(S): Staff Abuse` = as.numeric(`Incident Teyp(S): Staff Abuse`)) %>%
+    mutate(`Incident Teyp(S): Staff Abuse` = ifelse(is.na(`Incident Teyp(S): Staff Abuse`), 
+                                0, `Incident Teyp(S): Staff Abuse`)) %>% 
+    mutate(`Incident Teyp(S):  Refuse to leave` = as.numeric(`Incident Teyp(S):  Refuse to leave`)) %>%
+    mutate(`Incident Teyp(S):  Refuse to leave` = ifelse(is.na(`Incident Teyp(S):  Refuse to leave`), 
+                                0, `Incident Teyp(S):  Refuse to leave`)) %>%                                
+    mutate(`Incident Teyp(S): Property Damage` = as.numeric(`Incident Teyp(S): Property Damage`)) %>%
+    mutate(`Incident Teyp(S): Property Damage` = ifelse(is.na(`Incident Teyp(S): Property Damage`), 
+                                0, `Incident Teyp(S): Property Damage`)) %>%                             
+    mutate(`Incident Teyp(S): Other (Type)` = ifelse(is.na(`Incident Teyp(S): Other (Type)`)
+                                                    | X919report_data$`Incident Teyp(S): Other (Type)`=='(blank)'
+                                                    | X919report_data$`Incident Teyp(S): Other (Type)`=='0',
+                                "0", "1")) %>%
+    mutate(`Incident Teyp(S): Other (Type)` = as.numeric(`Incident Teyp(S): Other (Type)`)) %>%
+
+    drop_na()
+  
+  df$Time = sapply(df$Time, FUN=fix.time)
+  
+  df = df %>%
+    mutate(Time=hms::as.hms(Time))
+}
+
+
+newdata<-clean.my.data(X919report_data)
+  
+```
+
+```{r answer 1}
+summary(X919report_data)
+```
+
+
+```{r answer 2}
+timeincident<- newdata[,grepl('Incident',names(newdata))]
+timeincident<-cbind(rowSums(timeincident),newdata$Time)
+
+
+firstmorning=colSums(timeincident[timeincident[,2]<14400,])[1]
+secondmorning=colSums(timeincident[timeincident[,2]>14400&timeincident[,2]<28800,])[1]
+thirdmorning=colSums(timeincident[timeincident[,2]>28800&timeincident[,2]<43200,])[1]
+firstafternoon= colSums(timeincident[timeincident[,2]>43200&timeincident[,2]<57600,])[1]
+secondafternoon = colSums(timeincident[timeincident[,2]>57600&timeincident[,2]<72000,])[1]
+thirdafternoon = colSums(timeincident[timeincident[,2]>72000&timeincident[,2]<86400,])[1]
+
+realtimeincident <- c(firstmorning,secondmorning,thirdmorning,firstafternoon,secondafternoon,thirdafternoon)
+names(realtimeincident) <- c("first morning","second morning", "third morning","first afternoon","seconda afternoon","third afternoon")
+summary(realtimeincident)
+plot(realtimeincident,main="timeincident plot",xlab="time",ylab="occurences")
+#
+# Incidents are likely to be occurred more during noon and early afternoon. 
+# 41 incidents took place during early afternoon, which is the highest number of the day
+#
+```
+
+```{r answer 3}
+#Numbers of Over dose calls to ambulance
+OverdosetoAmbulance <-X919report_data$Overdose[X919report_data$`Call initiated to: Ambulance  (911)`>0]
+length(which(OverdosetoAmbulance>0))
+
+```
+
+```{r answer 4}
+#number of calls to police (first responders)
+policelist<-X919report_data$`Call initiated to: Police (911)`[X919report_data$`Attended By: Police`>0]
+length(which(policelist>0))
+
+#number of calls to ambulance
+ambulancelist<-X919report_data$`Call initiated to: Ambulance  (911)`[X919report_data$`Attended By: Ambulance`>0]
+length(which(ambulancelist>0))
+
+#number of calls to fire department
+firelist<-X919report_data$`Call initiated to: Fire (911)`[X919report_data$`Attended By:Fire`>0]
+length(which(firelist>0))
+```
+
+```{r answer 5}
+timeevent<- newdata[,grepl('Event',names(newdata))]
+timeevent<-cbind(timeevent,newdata$Time,newdata$`Other: (Enter)`)
+colnames(timeevent)[ncol(timeevent)]<-"Other"
+colnames(timeevent)[ncol(timeevent)-1]<-"Time"
+timeevent <- timeevent[order(timeevent$Time),]
+
+cor(as.numeric(timeevent$Time),timeevent$`Event Location: Drop In`) # approximately zero, which means nearly distinct relationship 
+cor(as.numeric(timeevent$Time),timeevent$`Event Location: Lobby`) # approximately zero, which means closely distinct relationship
+cor(as.numeric(timeevent$Time),timeevent$`Event Location: Courtyard`) # negative correlation but close to zero --> nearly opposite 
+cor(as.numeric(timeevent$Time),timeevent$`Event Location: Kitchen`) #never happen
+cor(as.numeric(timeevent$Time),timeevent$`Event Location: Dinning Area`) # negative correlation but close to zero --> nearly opposite 
+cor(as.numeric(timeevent$Time),timeevent$`Event Location: Chapel`) #never happen
+cor(as.numeric(timeevent$Time),timeevent$`Event Location: Hygiene`) # negative correlation --> opposite (time gradually passes, less incidents took place here)
+cor(as.numeric(timeevent$Time),timeevent$`Event Location: Games room`) #never happen
+cor(as.numeric(timeevent$Time),timeevent$`Event Location: Shipping&Reveiving Area`) #never happen 
+cor(as.numeric(timeevent$Time),timeevent$`Event Location: Common Housing Area`) # negative correlation but close to zero --> nearly opposite 
+cor(as.numeric(timeevent$Time),timeevent$`Event Location: Perimeter`) #postive correlation --> time passes more incidents happen here
+cor(as.numeric(timeevent$Time),timeevent$`Event Location: In Room`) #never happen
+cor(as.numeric(timeevent$Time),timeevent$`Event Location:Snack Bar`) #never happen
+cor(as.numeric(timeevent$Time),timeevent$Other) #close to zero --> somewhat connected 
+#
+
+
+
+```

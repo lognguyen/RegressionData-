@@ -1,5 +1,5 @@
 ---
-title: "Reportdata (Final Project Stat 123)"
+title: "Reportdata (Final Project)"
 author: "Long Nguyen"
 date: '2019-03-21'
 output: 
